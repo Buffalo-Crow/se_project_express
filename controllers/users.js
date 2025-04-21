@@ -1,39 +1,46 @@
+const mongoose = require('mongoose');
 const validator = require('validator');
 const User = require('../models/user');
+const {BAD_REQUEST,NOT_FOUND,INTERNAL_SERVER_ERROR, OK} = require("../utils/errors");
 
 
-const getUsers = (req,res)=>{
+
+const getUsers = (req,res) => {
   User.find({})
   .then((users)=> res.send({data:users}))
-  .catch((err)=> {
-    console.error (err);
-    return res.status(500).send({message:err.message});
+  .catch((err) => {
+    console.error(err);
+    return res.status(INTERNAL_SERVER_ERROR).send({message: err.message})
+  });
+}
+
+const getUser = (req,res)=>{
+  const {userId}= req.params;
+  User.findById(userId)
+  .orFail()
+  .then(user => res.status(OK).send (user))
+  .catch((err) => {
+    if (err instanceof mongoose.Error.CastError)
+       {return res.status(BAD_REQUEST).send({message:err.message})}
+   if (err instanceof mongoose.Error.DocumentNotFoundError)
+    {return res.status(NOT_FOUND).send({message:err.message})}
+  return res.status(INTERNAL_SERVER_ERROR).send({message:err.message})
   });
 }
 
 
-const getUser = (req,res)=>{
-  User.findById(req.params.id)
-  .then(user =>res.send ({data:user}))
-  .catch((err)=> {
-    console.error(err);
-    return res.status(500).send({message:err.message});
-  })
-}
-
-
-// ask for help from a tutor on this one
 const createUser = (req,res) => {
   const {name, avatar} = req.body;
   if (!validator.isURL(avatar)){
-    res.status(400).send({message:"Avatar must be a valid URL"})
+   res.status(BAD_REQUEST).send({message:"Avatar must be a valid URL"})
   }
   User.create({name, avatar})
   .then((user) => {
-    res.send({data:user})
+    res.status(OK).send(user)
   })
   .catch((err) => {
-     res.status(500).send({message: err.message})
+    console.error(err);
+    return res.status(INTERNAL_SERVER_ERROR).send({message: err.message})
   });
 }
 
