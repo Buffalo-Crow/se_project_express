@@ -1,39 +1,41 @@
 const validator = require ("validator");
 const ClothingItem = require('../models/clothingItem');
-const {BAD_REQUEST,NOT_FOUND,INTERNAL_SERVER_ERROR, OK} = require("../utils/errors");
+const {BAD_REQUEST, OK, internalErrorHelper, responseHandler, castErrorHandler} = require("../utils/errors");
 
 const getItems = (req,res) =>{
   ClothingItem.find({})
   .then((items)=> res.send(items))
   .catch((err)=>{
-    console.error(err);
-    return res.status(INTERNAL_SERVER_ERROR).send({message:err.message})
+  return internalErrorHelper (err,res)
     });
 }
 
 const postItem = (req,res) => {
+  console.log(req.user._id);
   const {name, weather, imageURL} = req.body;
+  const owner = req.user._id;
   if(!validator.isURL(imageURL)){
   res.status(BAD_REQUEST).send({message:"Must be a valid URL"})
   return;
   }
-  ClothingItem.create({name,weather,imageURL})
+  ClothingItem.create({name,weather,imageURL, owner})
+  .orFail()
   .then((item)=>{
     res.status(OK).send(item)
   })
   .catch((err)=> {
-    console.error(err);
-    return res.status(INTERNAL_SERVER_ERROR).send({message:err.message})
+    return castErrorHandler(err,res);
   });
 }
 
 const deleteItem = (req,res) =>{
   const {itemId} = req.params;
 ClothingItem.findByIdAndRemove(itemId)
-.then(items => res.send (items))
+.then((item)=>{
+ responseHandler(res,item)
+})
 .catch((err)=> {
-  console.error(err);
-  return res.status(INTERNAL_SERVER_ERROR).send({message:err.message})
+ return  castErrorHandler(err,res);
 });
 }
 
@@ -44,13 +46,10 @@ ClothingItem.findByIdAndUpdate(itemId,
 {new: true}
 )
 .then((item)=>{
-  if(!item){
-    return res.status (NOT_FOUND).send({message:"Item Id not Found"})
-  } return res.status(200).send(item);
+ responseHandler(res,item)
 })
 .catch((err)=>{
-  console.error(err);
-  return res.status(INTERNAL_SERVER_ERROR).send({message:err.message})
+ return castErrorHandler(err,res)
 });
 };
 
@@ -61,13 +60,10 @@ const dislikeItem = (req,res) =>{
   {$pull :{likes:req.user._id}},
   {new: true})
   .then((item)=>{
-    if(!item){
-      return res.staus(NOT_FOUND).send({message:"Item Id not Found "})
-    } return res.status(OK).send(item);
+   responseHandler(res,item)
   })
   .catch((err)=>{
-  console.error(err);
-  return res.status(INTERNAL_SERVER_ERROR).send({message:err.message})
+   return castErrorHandler(err,res);
   });
 };
 
