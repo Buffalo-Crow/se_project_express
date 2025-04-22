@@ -1,30 +1,26 @@
-const validator = require ("validator");
 const ClothingItem = require('../models/clothingItem');
-const {BAD_REQUEST, OK, internalErrorHelper, responseHandler, castErrorHandler} = require("../utils/errors");
+const { CREATED, internalErrorHelper, responseHandler, castErrorHandler} = require("../utils/errors");
 
 const getItems = (req,res) =>{
   ClothingItem.find({})
   .then((items)=> res.send(items))
   .catch((err)=>{
-  return internalErrorHelper (err,res)
-    });
+    internalErrorHelper (err,res)
+  }
+  );
 }
 
 const postItem = (req,res) => {
   console.log(req.user._id);
   const {name, weather, imageURL} = req.body;
   const owner = req.user._id;
-  if(!validator.isURL(imageURL)){
-  res.status(BAD_REQUEST).send({message:"Must be a valid URL"})
-  return;
-  }
   ClothingItem.create({name,weather,imageURL, owner})
   .orFail()
   .then((item)=>{
-    res.status(OK).send(item)
+    res.status(CREATED).send(item)
   })
   .catch((err)=> {
-    return castErrorHandler(err,res);
+    castErrorHandler(err,res);
   });
 }
 
@@ -35,7 +31,7 @@ ClothingItem.findByIdAndRemove(itemId)
  responseHandler(res,item)
 })
 .catch((err)=> {
- return  castErrorHandler(err,res);
+  castErrorHandler(err,res);
 });
 }
 
@@ -49,7 +45,7 @@ ClothingItem.findByIdAndUpdate(itemId,
  responseHandler(res,item)
 })
 .catch((err)=>{
- return castErrorHandler(err,res)
+ castErrorHandler(err,res)
 });
 };
 
@@ -63,7 +59,7 @@ const dislikeItem = (req,res) =>{
    responseHandler(res,item)
   })
   .catch((err)=>{
-   return castErrorHandler(err,res);
+   castErrorHandler(err,res);
   });
 };
 

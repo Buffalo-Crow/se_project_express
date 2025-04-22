@@ -1,7 +1,7 @@
 const BAD_REQUEST = 400;
 const NOT_FOUND = 404;
 const INTERNAL_SERVER_ERROR = 500;
-const OK =201;
+const CREATED =201;
 
 
 function internalErrorHelper(err, res) {
@@ -12,7 +12,7 @@ function internalErrorHelper(err, res) {
 function responseHandler(res,item){
   if(!item){
     return res.status(NOT_FOUND).send({message:"Item Id not Found "})
-  } return res.status(OK).send(item);
+  } return res.status(CREATED).send(item);
 }
 
 function castErrorHandler (err,res) {
@@ -24,4 +24,4 @@ function castErrorHandler (err,res) {
 
 }
 
-module.exports = {BAD_REQUEST,NOT_FOUND,INTERNAL_SERVER_ERROR, OK, internalErrorHelper, responseHandler, castErrorHandler};
+module.exports = {BAD_REQUEST,NOT_FOUND,INTERNAL_SERVER_ERROR, CREATED, internalErrorHelper, responseHandler, castErrorHandler};
