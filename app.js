@@ -27,10 +27,6 @@ app.use("/", mainRouter);
 
 module.exports = app;
 
-if (require.main === module){
-
-  app.listen(PORT, () => {
-    console.log(`the app is listening on the ${PORT}`);
-  });
-}
-
+app.listen(PORT, () => {
+  console.log(`the app is listening on the ${PORT}`);
+});
