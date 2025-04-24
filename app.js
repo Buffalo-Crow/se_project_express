@@ -25,7 +25,7 @@ app.use((req,res,next) => {
 
 app.use("/", mainRouter);
 
-
+module.exports = app;
 
 app.listen(PORT, () => {
   console.log(`the app is listening on the ${PORT}`);
