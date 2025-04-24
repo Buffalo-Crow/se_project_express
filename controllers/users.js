@@ -18,10 +18,10 @@ const getUser = (req,res)=>{
   .catch((err) => {
     console.error(err);
     if (err.name === "CastError"){
-      return res.status(BAD_REQUEST).send({message:err.message})
+      return res.status(BAD_REQUEST).send({message:"Invalid Id format"})
     }
    if (err. name === "DocumentNotFoundError"){
-     return res.status(NOT_FOUND).send({message:err.message})
+     return res.status(NOT_FOUND).send({message:"This document was not found"})
    }
    return internalErrorHelper(err,res)
   });
@@ -36,9 +36,9 @@ const createUser = (req,res) => {
   })
   .catch((err) => {
     if(err.name ==="ValidationError") {
-      return res.status(BAD_REQUEST).json({message:err.message});
+      return res.status(BAD_REQUEST).json({message:"Invalid Request"});
     }
-   return res.status(INTERNAL_SERVER_ERROR).json({message:err.message});
+   return res.status(INTERNAL_SERVER_ERROR).json({message:"An error has ocurred on the server"});
   });
 }
 
