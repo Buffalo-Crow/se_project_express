@@ -4,12 +4,12 @@ const {
   internalErrorHelper,
   responseHandler,
   castErrorHandler,
-  BAD_REQUEST,
+  BAD_REQUEST, SUCCESS
 } = require("../utils/errors");
 
 const getItems = (req, res) => {
   ClothingItem.find({})
-    .then((items) => res.send(items))
+    .then((items) => res.status(SUCCESS).send(items))
     .catch((err) => {
       internalErrorHelper(err, res);
     });
@@ -25,7 +25,7 @@ const postItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(BAD_REQUEST).send({ message: err.message});
+        res.status(BAD_REQUEST).send({ message: err});
       }
       return internalErrorHelper(err, res);
     });
