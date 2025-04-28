@@ -25,7 +25,7 @@ const postItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(BAD_REQUEST).send({ message: err});
+        res.status(BAD_REQUEST).send({ message: err.message});
       }
       return internalErrorHelper(err, res);
     });
