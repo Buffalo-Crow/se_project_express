@@ -25,4 +25,4 @@ function castErrorHandler (err,res) {
 
 }
 
-module.exports = {BAD_REQUEST,NOT_FOUND,INTERNAL_SERVER_ERROR, CREATED, internalErrorHelper, responseHandler, castErrorHandler};
+module.exports = {BAD_REQUEST,NOT_FOUND,INTERNAL_SERVER_ERROR,SUCCESS, CREATED, internalErrorHelper, responseHandler, castErrorHandler};
