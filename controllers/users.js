@@ -1,4 +1,3 @@
-
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 const {
@@ -12,7 +11,6 @@ const {
   SUCCESS,
 } = require("../utils/errors");
 
-
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
@@ -22,7 +20,7 @@ const getUsers = (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  const { userId } = req.user;
+  const { _id: userId } = req.user;
   User.findById(userId)
     .orFail()
     .then((user) => res.status(200).send(user))
@@ -42,17 +40,16 @@ const getCurrentUser = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
+  if (!email || !password){
+    return res.status(BAD_REQUEST).send({message: "Email and password are required"})
+  }
   bcrypt
     .hash(password, 10)
     .then((hash) => User.create({ name, avatar, email, password: hash }))
     .then((user) => {
-      const userResponse = {
-        name: user.name,
-        avatar: user.avatar,
-        email: user.email,
-        _id: user._id,
-      }
-      res.status(CREATED).send(userResponse);
+    const userObject = user.toObject();
+    delete userObject.password;
+      res.status(CREATED).send(userObject);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
@@ -71,10 +68,9 @@ const createUser = (req, res) => {
 
 const updateUserProfile = (req, res) => {
   const { name, avatar } = req.body;
-  const { userId } = req.user;
 
   User.findByIdAndUpdate(
-    userId,
+    req.user._id,
     { name, avatar },
     { new: true, runValidators: true }
   )
