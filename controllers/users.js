@@ -40,15 +40,18 @@ const getCurrentUser = (req, res) => {
 
 const createUser = (req, res) => {
   const { name, avatar, email, password } = req.body;
-  if (!email || !password){
-    return res.status(BAD_REQUEST).send({message: "Email and password are required"})
+  if (!email || !password) {
+    res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+    return;
   }
   bcrypt
     .hash(password, 10)
     .then((hash) => User.create({ name, avatar, email, password: hash }))
     .then((user) => {
-    const userObject = user.toObject();
-    delete userObject.password;
+      const userObject = user.toObject();
+      delete userObject.password;
       res.status(CREATED).send(userObject);
     })
     .catch((err) => {
