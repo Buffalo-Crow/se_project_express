@@ -4,7 +4,8 @@ const app = express();
 const { PORT = 3001 } = process.env;
 
 const mongoose = require("mongoose");
-const cors = require('cors');
+const cors = require("cors");
+const helmet = require("helmet");
 const mainRouter = require("./routes/index");
 
 mongoose
@@ -17,6 +18,8 @@ mongoose
 app.use(express.json());
 
 app.use(cors());
+
+app.use(helmet());
 
 app.use("/", mainRouter);
 
