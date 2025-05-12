@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
-const { SUCCESS, UNAUTHORIZED, BAD_REQUEST } = require("../utils/errors");
+const { SUCCESS, UNAUTHORIZED, BAD_REQUEST, internalErrorHelper } = require("../utils/errors");
 
-const JWT_SECRET  = require("../utils/config");
+const JWT_SECRET = require("../utils/config");
 
 const login = (req, res) => {
   const { email, password } = req.body;
@@ -20,7 +20,10 @@ const login = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      res.status(UNAUTHORIZED).send({ message: err.message });
+      if (err.message === "Incorrect email or password") {
+        res.status(UNAUTHORIZED).send({ message: err.message });
+      }
+      return internalErrorHelper;
     });
 };
 

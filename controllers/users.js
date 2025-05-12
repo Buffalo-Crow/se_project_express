@@ -11,13 +11,7 @@ const {
   SUCCESS,
 } = require("../utils/errors");
 
-const getUsers = (req, res) => {
-  User.find({})
-    .then((users) => res.send(users))
-    .catch((err) => {
-      internalErrorHelper(err, res);
-    });
-};
+
 
 const getCurrentUser = (req, res) => {
   const { _id: userId } = req.user;
@@ -96,4 +90,4 @@ const updateUserProfile = (req, res) => {
     });
 };
 
-module.exports = { getUsers, getCurrentUser, createUser, updateUserProfile };
+module.exports = { getCurrentUser, createUser, updateUserProfile };
