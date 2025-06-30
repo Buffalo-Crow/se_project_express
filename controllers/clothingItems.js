@@ -1,24 +1,17 @@
 const ClothingItem = require("../models/clothingItem");
-const {
-  CREATED,
-  internalErrorHelper,
-  responseHandler,
-  castErrorHandler,
-  BAD_REQUEST,
-  SUCCESS,
-  NOT_FOUND,
-  FORBIDDEN,
-} = require("../utils/errors");
+const { CREATED, SUCCESS } = require("../utils/errors");
+const BadRequestError = require("../utils/errorClasses/badRequest");
+const NotFoundError = require("../utils/errorClasses/notFound");
+const ForbiddenError = require("../utils/errorClasses/forbidden");
 
-const getItems = (req, res) => {
+const getItems = (req, res, next) => {
   ClothingItem.find({})
     .then((items) => res.status(SUCCESS).send(items))
-    .catch((err) => {
-      internalErrorHelper(err, res);
-    });
+    .catch(next);
 };
 
-const postItem = (req, res) => {
+// refactored
+const postItem = (req, res, next) => {
   console.log(req.user._id);
   const { name, weather, imageUrl } = req.body;
   const owner = req.user._id;
@@ -27,38 +20,44 @@ const postItem = (req, res) => {
       res.status(CREATED).send(item);
     })
     .catch((err) => {
+      console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: err.message });
+        next(new BadRequestError("Invalid data provided"));
+      } else {
+        next(err);
       }
-      return internalErrorHelper(err, res);
     });
 };
 
-const deleteItem = (req, res) => {
+// halfway refactored SUCCESS still used
+const deleteItem = (req, res, next) => {
   const { itemId } = req.params;
   ClothingItem.findById(itemId)
     .then((item) => {
       if (!item) {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
+        return next(new NotFoundError("Item not found"));
       }
       if (!item.owner.equals(req.user._id)) {
-        return res
-          .status(FORBIDDEN)
-          .send({ message: "You do not have permission to delete this item" });
+        return next(
+          new ForbiddenError("You do not have permission to delete this item")
+        );
       }
       return item.deleteOne().then(() => {
-        res.status(SUCCESS).send({message: "Item successfully deleted"})
+        res.status(SUCCESS).send({ message: "Item successfully deleted" });
       });
     })
     .catch((err) => {
-      if(err.name === "CastError"){
-        return castErrorHandler(err,res);
+      console.error(err);
+      if (err.name === "CastError") {
+        next(new BadRequestError("Invalid item ID format"));
+      } else {
+        next(err);
       }
-      return internalErrorHelper(err,res);
     });
 };
 
-const likeItem = (req, res) => {
+// refactord with class errors
+const likeItem = (req, res, next) => {
   const { itemId } = req.params;
   ClothingItem.findByIdAndUpdate(
     itemId,
@@ -66,14 +65,22 @@ const likeItem = (req, res) => {
     { new: true }
   )
     .then((item) => {
-      responseHandler(res, item);
+      if (!item) {
+        return next(new NotFoundError("Item not found"));
+      }
+      return res.status(SUCCESS).send(item);
     })
     .catch((err) => {
-      castErrorHandler(err, res);
+      console.error(err);
+      if (err.name === "CastError") {
+        return next(new BadRequestError("Invalid item ID format"));
+      }
+      return next(err);
     });
 };
 
-const dislikeItem = (req, res) => {
+// refactored with class errors
+const dislikeItem = (req, res, next) => {
   const { itemId } = req.params;
   ClothingItem.findByIdAndUpdate(
     itemId,
@@ -81,10 +88,17 @@ const dislikeItem = (req, res) => {
     { new: true }
   )
     .then((item) => {
-      responseHandler(res, item);
+      if (!item) {
+        return next(new NotFoundError("Item not found"));
+      }
+      return res.status(SUCCESS).send(item);
     })
     .catch((err) => {
-      castErrorHandler(err, res);
+      console.error(err);
+      if (err.name === "CastError") {
+        return next(new BadRequestError("Invalid item ID format"));
+      }
+      return next(err);
     });
 };
 

@@ -1,43 +1,31 @@
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
-const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  CREATED,
-  internalErrorHelper,
-  INTERNAL_SERVER_ERROR,
-  CONFLICT,
-  castErrorHandler,
-  SUCCESS,
-} = require("../utils/errors");
+const { CREATED, SUCCESS } = require("../utils/errors");
+const BadRequestError = require("../utils/errorClasses/badRequest");
+const NotFoundError = require("../utils/errorClasses/notFound");
+const ConflictError = require("../utils/errorClasses/conflict");
 
-
-
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   const { _id: userId } = req.user;
   User.findById(userId)
     .orFail()
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(SUCCESS).send(user))
     .catch((err) => {
       console.error(err);
       if (err.name === "CastError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid Id format" });
+        return next(new BadRequestError("Invalid user ID format"));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: "This document was not found" });
+        return next(new NotFoundError("User not found"));
       }
-      return internalErrorHelper(err, res);
+      return next(err);
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, avatar, email, password } = req.body;
   if (!email || !password) {
-    res
-      .status(BAD_REQUEST)
-      .send({ message: "Email and password are required" });
+    next(new BadRequestError("Email and password are required"));
     return;
   }
   bcrypt
@@ -49,21 +37,18 @@ const createUser = (req, res) => {
       res.status(CREATED).send(userObject);
     })
     .catch((err) => {
+      console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).json({ message: "Invalid Request" });
+        return next(new BadRequestError("Invalid Request"));
       }
       if (err.code === 11000) {
-        return res
-          .status(CONFLICT)
-          .json({ message: "This email already exists" });
+        return next(new ConflictError("Email already exists"));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .json({ message: "An error has occurred on the server" });
+      return next(err);
     });
 };
 
-const updateUserProfile = (req, res) => {
+const updateUserProfile = (req, res, next) => {
   const { name, avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -78,15 +63,15 @@ const updateUserProfile = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(BAD_REQUEST).send({ message: "Invalid Request" });
+        return next(new BadRequestError("Invalid data provided"));
       }
       if (err.name === "CastError") {
-        return castErrorHandler(err, res);
+        return next(new BadRequestError("Invalid user ID format"));
       }
       if (err.name === "DocumentNotFoundError") {
-        return res.status(NOT_FOUND).send({ message: "Item not found" });
+        return next(new NotFoundError("User not found"));
       }
-      return internalErrorHelper(err, res);
+      return next(err);
     });
 };
 
