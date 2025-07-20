@@ -4,7 +4,13 @@ const userRouter = require("./users");
 const clothingItems = require("./clothingItems");
 const { NOT_FOUND } = require("../utils/errors");
 const login = require("../controllers/auth");
-const {createUser} = require("../controllers/users");
+const { createUser } = require("../controllers/users");
+
+app.get("/crash-test", () => {
+  setTimeout(() => {
+    throw new Error("Server will crash now");
+  }, 0);
+});
 
 router.post("/signin", login);
 router.post("/signup", createUser);
