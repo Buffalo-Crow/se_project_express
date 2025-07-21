@@ -8,10 +8,20 @@ const {
 } = require("../controllers/clothingItems");
 const tokenAuthorization = require("../middlewares/auth");
 
+const {
+  validateClothingItem,
+  validateUserId,
+} = require("../middlewares/validation");
+
 router.get("/", getItems);
-router.post("/", tokenAuthorization, postItem);
-router.delete("/:itemId", tokenAuthorization, deleteItem);
-router.put("/:itemId/likes", tokenAuthorization, likeItem);
-router.delete("/:itemId/likes", tokenAuthorization, dislikeItem);
+router.post("/", tokenAuthorization, validateClothingItem, postItem);
+router.delete("/:itemId", tokenAuthorization, validateUserId, deleteItem);
+router.put("/:itemId/likes", tokenAuthorization, validateUserId, likeItem);
+router.delete(
+  "/:itemId/likes",
+  tokenAuthorization,
+  validateUserId,
+  dislikeItem
+);
 
 module.exports = router;

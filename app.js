@@ -6,6 +6,7 @@ require("dotenv").config();
 const helmet = require("helmet");
 const { errors } = require("celebrate");
 const mainRouter = require("./routes/index");
+
 const app = express();
 const { PORT = 3001 } = process.env;
 const errorHandler = require("./middlewares/error");
