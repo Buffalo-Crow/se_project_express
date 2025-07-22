@@ -10,17 +10,17 @@ const tokenAuthorization = require("../middlewares/auth");
 
 const {
   validateClothingItem,
-  validateUserId,
+  validateItemId,
 } = require("../middlewares/validation");
 
 router.get("/", getItems);
 router.post("/", tokenAuthorization, validateClothingItem, postItem);
-router.delete("/:itemId", tokenAuthorization, validateUserId, deleteItem);
-router.put("/:itemId/likes", tokenAuthorization, validateUserId, likeItem);
+router.delete("/:itemId", tokenAuthorization, validateItemId, deleteItem);
+router.put("/:itemId/likes", tokenAuthorization, validateItemId, likeItem);
 router.delete(
   "/:itemId/likes",
   tokenAuthorization,
-  validateUserId,
+  validateItemId,
   dislikeItem
 );
 

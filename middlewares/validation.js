@@ -2,7 +2,7 @@ const { Joi, celebrate } = require("celebrate");
 const validator = require("validator");
 
 const validateUrl = (value, helpers) => {
-  if (!validator.isURL(value)) {
+  if (validator.isURL(value)) {
     return value;
   }
   return helpers.error("string.uri");
@@ -61,7 +61,7 @@ const validateLogin = celebrate({
   }),
 });
 
-const validateUserId = celebrate({
+const validateItemId = celebrate({
   params: Joi.object().keys({
     itemId: Joi.string().required().hex().length(24).messages({
       "string.hex": 'The "itemId" field must be a valid hex string',
@@ -88,6 +88,6 @@ module.exports = {
   validateClothingItem,
   validateUserBody,
   validateLogin,
-  validateUserId,
+  validateItemId,
   validateUserUpdate,
 };
