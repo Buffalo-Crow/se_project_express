@@ -16,7 +16,7 @@ const validateClothingItem = celebrate({
       "string.empty": 'The "name" field must be filled in',
     }),
     weather: Joi.string().required().valid("hot", "cold", "rainy").messages({
-      "any.only": 'The "weather" field must be one of: hot, cold, rainy',
+      "any.only": 'The "weather" field must be one of: hot, warm, cold',
       "string.empty": 'The "weather" field must be filled in',
     }),
     imageUrl: Joi.string()
