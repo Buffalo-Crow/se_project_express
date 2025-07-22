@@ -13,4 +13,4 @@ The technologies used for this project:
 ## Running the Project
 
 In order to test this project to make sure that the server was funtioning correctly I implemented the use of Postman and MongoDB Compass
-These are integral tools for server development.
+These are integral tools for server development and error handling. 
